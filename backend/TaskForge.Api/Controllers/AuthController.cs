@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -106,6 +107,23 @@ namespace TaskForge.Api.Controllers
                 }
             });
         }
+
+        [Authorize]
+        [HttpGet("me")]
+        public IActionResult GetCurrentUser()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var name = User.FindFirst(ClaimTypes.Name)?.Value;
+            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+
+            return Ok(new
+            {
+                userId,
+                name,
+                email
+            });
+        }
+
         private string CreateToken(User user)
         {
             var claims = new[]
@@ -137,6 +155,7 @@ namespace TaskForge.Api.Controllers
             return new JwtSecurityTokenHandler()
                 .WriteToken(token);
         }
+
 
     }
 }
